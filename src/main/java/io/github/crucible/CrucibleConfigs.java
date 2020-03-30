@@ -74,6 +74,9 @@ public class CrucibleConfigs extends YamlConfig {
 
     public String timings_serverName = "Crucible Server";
 
+    @Comment("Cauldron has a config that make chunks not unloadable until a specic grace-period is achieved! This config makes the bukkit's chunk-unload-requests bypass this period.")
+    public boolean cauldron_makeBukkitChunkUnloadRequestsBypassGracePeriod = true;
+
     private CrucibleConfigs() {
         CONFIG_FILE = new File("Crucible.yml");
         CONFIG_MODE = ConfigMode.PATH_BY_UNDERSCORE;

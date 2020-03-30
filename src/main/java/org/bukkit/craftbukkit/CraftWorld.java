@@ -11,9 +11,11 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
+import io.github.crucible.CrucibleConfigs;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.world.ChunkCoordIntPair;
+import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.BlockSnapshot;
 
@@ -201,6 +203,9 @@ public class CraftWorld implements World {
         }
 
         world.theChunkProviderServer.unloadChunksIfNotNearSpawn(x, z);
+        if (CrucibleConfigs.configs.cauldron_makeBukkitChunkUnloadRequestsBypassGracePeriod){
+            world.chunksToUnloadBesidesGracePeriod.add(new ChunkCoordinates(x,0,z));
+        }
         // Cauldron end
 
         return true;

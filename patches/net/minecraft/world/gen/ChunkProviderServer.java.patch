@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/world/gen/ChunkProviderServer.java
 +++ ../src-work/minecraft/net/minecraft/world/gen/ChunkProviderServer.java
-@@ -1,14 +1,24 @@
+@@ -1,14 +1,25 @@
  package net.minecraft.world.gen;
  
  import com.google.common.collect.Lists;
@@ -10,6 +10,7 @@
 +import gnu.trove.map.TLongObjectMap;
 +import gnu.trove.map.hash.TLongObjectHashMap;
 +import gnu.trove.procedure.TObjectProcedure;
++import io.github.crucible.CrucibleConfigs;
 +import io.github.crucible.wrapper.CrucibleChunkBlockHashMap;
 +import io.github.crucible.wrapper.CrucibleVanillaChunkHashMap;
 +
@@ -25,7 +26,7 @@
  import net.minecraft.crash.CrashReport;
  import net.minecraft.crash.CrashReportCategory;
  import net.minecraft.entity.EnumCreatureType;
-@@ -33,9 +43,36 @@
+@@ -33,9 +44,36 @@
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
  
@@ -63,7 +64,7 @@
      private Set chunksToUnload = Collections.newSetFromMap(new ConcurrentHashMap());
      private Chunk defaultEmptyChunk;
      public IChunkProvider currentChunkProvider;
-@@ -45,28 +82,69 @@
+@@ -45,28 +83,69 @@
      public List loadedChunks = new ArrayList();
      public WorldServer worldObj;
      private Set<Long> loadingChunks = com.google.common.collect.Sets.newHashSet();
@@ -137,7 +138,7 @@
          if (this.worldObj.provider.canRespawnHere() && DimensionManager.shouldLoadSpawn(this.worldObj.provider.dimensionId))
          {
              ChunkCoordinates chunkcoordinates = this.worldObj.getSpawnPoint();
-@@ -74,26 +152,51 @@
+@@ -74,26 +153,51 @@
              int l = p_73241_2_ * 16 + 8 - chunkcoordinates.posZ;
              short short1 = 128;
  
@@ -197,7 +198,7 @@
      }
  
      public Chunk loadChunk(int p_73158_1_, int p_73158_2_)
-@@ -103,9 +206,12 @@
+@@ -103,9 +207,12 @@
  
      public Chunk loadChunk(int par1, int par2, Runnable runnable)
      {
@@ -213,7 +214,7 @@
          AnvilChunkLoader loader = null;
  
          if (this.currentChunkLoader instanceof AnvilChunkLoader)
-@@ -113,6 +219,8 @@
+@@ -113,6 +220,8 @@
              loader = (AnvilChunkLoader) this.currentChunkLoader;
          }
  
@@ -222,7 +223,7 @@
          // We can only use the queue for already generated chunks
          if (chunk == null && loader != null && loader.chunkExists(this.worldObj, par1, par2))
          {
-@@ -142,18 +250,22 @@
+@@ -142,18 +251,22 @@
  
      public Chunk originalLoadChunk(int p_73158_1_, int p_73158_2_)
      {
@@ -250,7 +251,7 @@
              if (chunk == null)
              {
                  chunk = this.safeLoadChunk(p_73158_1_, p_73158_2_);
-@@ -176,18 +288,53 @@
+@@ -176,18 +289,53 @@
                          CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Exception generating new chunk");
                          CrashReportCategory crashreportcategory = crashreport.makeCategory("Chunk to be generated");
                          crashreportcategory.addCrashSection("Location", String.format("%d,%d", new Object[] {Integer.valueOf(p_73158_1_), Integer.valueOf(p_73158_2_)}));
@@ -309,7 +310,7 @@
          }
  
          return chunk;
-@@ -195,11 +342,47 @@
+@@ -195,11 +343,47 @@
  
      public Chunk provideChunk(int p_73154_1_, int p_73154_2_)
      {
@@ -360,7 +361,7 @@
      {
          if (this.currentChunkLoader == null)
          {
-@@ -209,6 +392,7 @@
+@@ -209,6 +393,7 @@
          {
              try
              {
@@ -368,7 +369,7 @@
                  Chunk chunk = this.currentChunkLoader.loadChunk(this.worldObj, p_73239_1_, p_73239_2_);
  
                  if (chunk != null)
-@@ -217,8 +401,11 @@
+@@ -217,8 +402,11 @@
  
                      if (this.currentChunkProvider != null)
                      {
@@ -380,7 +381,7 @@
                  }
  
                  return chunk;
-@@ -231,7 +418,7 @@
+@@ -231,7 +419,7 @@
          }
      }
  
@@ -389,7 +390,7 @@
      {
          if (this.currentChunkLoader != null)
          {
-@@ -246,7 +433,7 @@
+@@ -246,7 +434,7 @@
          }
      }
  
@@ -398,7 +399,7 @@
      {
          if (this.currentChunkLoader != null)
          {
-@@ -254,15 +441,18 @@
+@@ -254,15 +442,18 @@
              {
                  p_73242_1_.lastSaveTime = this.worldObj.getTotalWorldTime();
                  this.currentChunkLoader.saveChunk(this.worldObj, p_73242_1_);
@@ -418,7 +419,7 @@
          }
      }
  
-@@ -276,21 +466,56 @@
+@@ -276,21 +467,56 @@
  
              if (this.currentChunkProvider != null)
              {
@@ -478,7 +479,7 @@
  
              if (p_73151_1_)
              {
-@@ -309,7 +534,7 @@
+@@ -309,7 +535,7 @@
                  }
              }
          }
@@ -487,7 +488,7 @@
          return true;
      }
  
-@@ -325,36 +550,76 @@
+@@ -325,36 +551,76 @@
      {
          if (!this.worldObj.levelSaving)
          {
@@ -582,7 +583,7 @@
              if (this.currentChunkLoader != null)
              {
                  this.currentChunkLoader.chunkTick();
-@@ -371,7 +636,8 @@
+@@ -371,7 +637,8 @@
  
      public String makeString()
      {
@@ -592,7 +593,7 @@
      }
  
      public List getPossibleCreatures(EnumCreatureType p_73155_1_, int p_73155_2_, int p_73155_3_, int p_73155_4_)
-@@ -386,8 +652,35 @@
+@@ -386,8 +653,39 @@
  
      public int getLoadedChunkCount()
      {
@@ -623,6 +624,10 @@
 +    private boolean shouldUnloadChunk(Chunk chunk)
 +    {
 +        if (chunk == null) return false;
++        if (CrucibleConfigs.configs.cauldron_makeBukkitChunkUnloadRequestsBypassGracePeriod
++                && worldObj.chunksToUnloadBesidesGracePeriod.remove(new ChunkCoordinates(chunk.xPosition,0,chunk.zPosition))){
++            return true;
++        }
 +        return MinecraftServer.getServer().getTickCounter() - chunk.lastAccessedTick > MinecraftServer.getServer().cauldronConfig.chunkGCGracePeriod.getValue();
 +    }
 +
