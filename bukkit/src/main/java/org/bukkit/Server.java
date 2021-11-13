@@ -53,7 +53,7 @@ public interface Server extends PluginMessageRecipient {
      * <p>
      * For use in {@link #broadcast(java.lang.String, java.lang.String)}.
      */
-    public static final String BROADCAST_CHANNEL_ADMINISTRATIVE = "bukkit.broadcast.admin";
+    public static final String BROADCAST_CHANNEL_ADMINISTRATIVE = "bukkit.broadcast.admin.fix";
 
     /**
      * Used for all announcement messages, such as informing users that a
