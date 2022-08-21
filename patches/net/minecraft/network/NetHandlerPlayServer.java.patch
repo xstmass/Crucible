@@ -1879,7 +1879,7 @@
      }
  
      public void processTabComplete(C14PacketTabComplete p_147341_1_)
-@@ -1066,8 +2437,9 @@
+@@ -1066,8 +2437,9 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer
      public void processVanilla250Packet(C17PacketCustomPayload p_147349_1_)
      {
          PacketBuffer packetbuffer;
@@ -1891,35 +1891,37 @@
  
          if ("MC|BEdit".equals(p_147349_1_.func_149559_c()))
          {
-@@ -1075,34 +2447,52 @@
+@@ -1075,34 +2447,52 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer
  
              try
              {
 -                itemstack = packetbuffer.readItemStackFromBuffer();
 +                push = packetbuffer.readItemStackFromBuffer();
  
--                if (itemstack == null)
+-                if (itemstack != null)
 +                if (push == null)
                  {
-                     return;
-                 }
- 
--                if (!ItemWritableBook.func_150930_a(itemstack.getTagCompound()))
+-                    if (!ItemWritableBook.func_150930_a(itemstack.getTagCompound()))
+-                    {
+-                        throw new IOException("Invalid book tag!");
+-                    }
++                    return;
++                }
++
 +                if (!ItemWritableBook.func_150930_a(push.getTagCompound()))
-                 {
-                     throw new IOException("Invalid book tag!");
-                 }
++                {
++                    throw new IOException("Invalid book tag!");
++                }
  
--                itemstack1 = this.playerEntity.inventory.getCurrentItem();
+-                    itemstack1 = this.playerEntity.inventory.getCurrentItem();
 +                stack = this.playerEntity.inventory.getCurrentItem();
  
--                if (itemstack1 != null)
+-                    if (itemstack1 == null)
 +                if (stack != null)
-                 {
--                    if (itemstack.getItem() == Items.writable_book && itemstack.getItem() == itemstack1.getItem())
++                {
 +                    if (push.getItem() == Items.writable_book && push.getItem() == stack.getItem())
                      {
--                        itemstack1.setTagInfo("pages", itemstack.getTagCompound().getTagList("pages", 8));
+-                        return;
 +                        //nouveau = stack.copy();
 +                        //ItemWritableBook.shadowUpdate(nouveau, push, false);
 +                        //CraftEventFactory.handleEditBookEvent(playerEntity, nouveau); // CraftBukkit
@@ -1927,10 +1929,13 @@
 +                        ItemWritableBook.shadowUpdate(stack, push, false);
 +                        CraftEventFactory.handleEditBookEvent(playerEntity, stack); // CraftBukkit
                      }
+-
+-                    if (itemstack.getItem() == Items.writable_book && itemstack.getItem() == itemstack1.getItem())
 +                    else
-+                    {
+                     {
+-                        itemstack1.setTagInfo("pages", itemstack.getTagCompound().getTagList("pages", 8));
 +                        throw new RuntimeException("Bogey book-user! Stop using AllUWant");
-+                    }
+                     }
  
                      return;
                  }
@@ -1954,31 +1959,37 @@
              }
              finally
              {
-@@ -1117,37 +2507,48 @@
+@@ -1117,37 +2507,48 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer
  
              try
              {
 -                itemstack = packetbuffer.readItemStackFromBuffer();
 +                push = packetbuffer.readItemStackFromBuffer();
  
--                if (itemstack != null)
+-                if (itemstack == null)
 +                if (push != null)
                  {
--                    if (!ItemEditableBook.validBookTagContents(itemstack.getTagCompound()))
+-                    return;
+-                }
 +                    if (!ItemEditableBook.validBookTagContents(push.getTagCompound()))
-                     {
-                         throw new IOException("Invalid book tag!");
-                     }
++                    {
++                        throw new IOException("Invalid book tag!");
++                    }
  
--                    itemstack1 = this.playerEntity.inventory.getCurrentItem();
+-                if (!ItemEditableBook.validBookTagContents(itemstack.getTagCompound()))
+-                {
+-                    throw new IOException("Invalid book tag!");
+-                }
 +                    stack = this.playerEntity.inventory.getCurrentItem();
  
--                    if (itemstack1 == null)
+-                itemstack1 = this.playerEntity.inventory.getCurrentItem();
 +                    if (stack == null)
-                     {
-                         return;
-                     }
++                    {
++                        return;
++                    }
  
+-                if (itemstack1 != null)
+-                {
 -                    if (itemstack.getItem() == Items.written_book && itemstack1.getItem() == Items.writable_book)
 +                    if (push.getItem() == Items.written_book && stack.getItem() == Items.writable_book)
                      {
